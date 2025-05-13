@@ -1,0 +1,37 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "engine":{
+    "node ":"22"
+  },
+  "scripts": {
+    "server": "nodemon server.js",
+    "start":"node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.3",
+    "cloudinary": "^1.41.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "formidable": "^2.1.2",
+    "jsonwebtoken": "^9.0.2",
+    "moment": "^2.29.4",
+    "mongoose": "^8.12.2",
+    "nodemailer": "^6.10.1",
+    "otp-generator": "^4.0.1",
+    "socket.io": "^4.8.1",
+    "stripe": "^14.18.0",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}
