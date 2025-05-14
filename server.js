@@ -11,16 +11,23 @@ require('dotenv').config();
 
 // --- HTTP Server & Socket.IO Setup ---
 const server = http.createServer(app);
+const allowedOrigins = process.env.mode === 'pro' ? [process.env.client_customer_production_url, process.env.client_admin_production_production_url] : ['http://localhost:3000', 'http://localhost:3001'];
 const io = socket(server, {
     cors: {
-        origin: process.env.mode === 'pro'? [process.env.client_customer_production_url,process.env.client_admin_production_production_url] : ['http://localhost:3000', 'http://localhost:3001'],
+        origin: function (origin, callback){
+        if (!origin || allowedOrigins.includes(origin)){
+            return callback(null,true);} else { callback(new Error('not allowed CORS'))}
+    },
         credentials: true
     }
 });
 
 // --- Middleware ---
 app.use(cors({
-    origin: process.env.mode === 'pro'? [process.env.client_customer_production_url,process.env.client_admin_production_production_url] : ['http://localhost:3000', 'http://localhost:3001'],
+    origin: function (origin, callback){
+        if (!origin || allowedOrigins.includes(origin)){
+            return callback(null,true);} else { callback(new Error('not allowed CORS'))}
+    },
     credentials: true
 }));
 app.use(bodyParser.json());
