@@ -1,4 +1,3 @@
-
 const express = require('express');
 const app = express();
 const cors = require('cors');
@@ -11,24 +10,34 @@ require('dotenv').config();
 
 // --- HTTP Server & Socket.IO Setup ---
 const server = http.createServer(app);
-const allowedOrigins = process.env.mode === 'pro' ? [process.env.client_customer_production_url, process.env.client_admin_production_production_url] : ['http://localhost:3000', 'http://localhost:3001'];
+const allowedOrigins = process.env.mode === 'pro' ? [process.env.client_customer_production_url, process.env.client_admin_production_url] : ['http://localhost:3000', 'http://localhost:3001'];
 const io = socket(server, {
     cors: {
-        origin: function (origin, callback){
-        if (!origin || allowedOrigins.includes(origin)){
-            return callback(null,true);} else { callback(new Error('not allowed CORS'))}
-    },
-        credentials: true
+        origin: function (origin, callback) {
+            if (!origin || allowedOrigins.includes(origin)) {
+                return callback(null, true);
+            } else {
+                callback(new Error('Not allowed by CORS'));
+            }
+        },
+        credentials: true,
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'], // Added Cookie header
     }
 });
 
 // --- Middleware ---
 app.use(cors({
-    origin: function (origin, callback){
-        if (!origin || allowedOrigins.includes(origin)){
-            return callback(null,true);} else { callback(new Error('not allowed CORS'))}
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
     },
-    credentials: true
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'], // Added Cookie header
 }));
 app.use(bodyParser.json());
 app.use(cookieParser());

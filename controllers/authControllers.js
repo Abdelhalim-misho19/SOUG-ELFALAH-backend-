@@ -46,8 +46,8 @@ class authControllers {
             res.cookie('accessToken', token, {
                 expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
                 httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'strict'
+                secure: true,
+                sameSite: 'none'
             });
             responseReturn(res, 200, {token, message: "Admin Login Successful"});
 
@@ -70,7 +70,7 @@ class authControllers {
             if (seller.status === 'unverified') {
                 return responseReturn(res, 401, { error: "Account not verified. Please check email for OTP." });
             }
-           /* if (seller.status === 'pending') {
+            /* if (seller.status === 'pending') {
                 return responseReturn(res, 401, { error: "Account registration pending admin approval." });
             }
             if (seller.status === 'deactive') {
@@ -87,8 +87,8 @@ class authControllers {
             res.cookie('accessToken', token, {
                 expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
                 httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'strict'
+                secure: true,
+                sameSite: 'none'
             });
             responseReturn(res, 200, { token, message: "Seller Login Successful" });
 
@@ -228,7 +228,9 @@ class authControllers {
             const token = await createToken(tokenPayload);
             res.cookie('accessToken', token, {
                 expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-                httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict'
+                httpOnly: true,
+                secure: true,
+                sameSite: 'none'
             });
             responseReturn(res, 200, { token, message: 'Email verified successfully! Account pending admin approval.' });
 
@@ -332,7 +334,6 @@ class authControllers {
             // Check if new password is same as old (optional but good practice)
             // const isSamePassword = await bcrpty.compare(password, seller.password);
             // if (isSamePassword) return responseReturn(res, 400, { error: 'New password cannot be the same as the old password.' });
-
 
             seller.password = newHashedPassword;
             seller.passwordResetToken = undefined; // Invalidate token
@@ -459,8 +460,10 @@ class authControllers {
     logout = async (req, res) => {
         try {
             res.cookie('accessToken', '', {
-                expires: new Date(0), httpOnly: true,
-                secure: process.env.NODE_ENV === 'production', sameSite: 'strict'
+                expires: new Date(0),
+                httpOnly: true,
+                secure: true,
+                sameSite: 'none'
             });
             responseReturn(res, 200, { message: 'Logout successful.' });
         } catch (error) {
