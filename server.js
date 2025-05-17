@@ -1,3 +1,4 @@
+
 const express = require('express');
 const app = express();
 const cors = require('cors');
@@ -10,50 +11,25 @@ require('dotenv').config();
 
 // --- HTTP Server & Socket.IO Setup ---
 const server = http.createServer(app);
-const allowedOrigins = process.env.mode === 'pro' 
-    ? [
-        process.env.client_customer_production_url, 
-        process.env.client_admin_production_url
-      ].filter(origin => origin && origin !== 'undefined') // Remove undefined or invalid origins
-    : ['http://localhost:3000', 'http://localhost:3001'];
-
-console.log(`[Server Start] Allowed Origins: ${allowedOrigins.join(', ')}`); // Log allowed origins on startup
-
+const allowedOrigins = process.env.mode === 'pro' ? [process.env.client_customer_production_url, process.env.client_admin_production_production_url] : ['http://localhost:3000', 'http://localhost:3001'];
 const io = socket(server, {
     cors: {
-        origin: function (origin, callback) {
-            console.log(`[Socket.IO CORS] Origin: ${origin}`);
-            if (!origin || allowedOrigins.includes(origin)) {
-                callback(null, true);
-            } else {
-                console.log(`[Socket.IO CORS] Blocked origin: ${origin}`);
-                callback(new Error('Not allowed by CORS'));
-            }
-        },
-        credentials: true,
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-        allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+        origin: function (origin, callback){
+        if (!origin || allowedOrigins.includes(origin)){
+            return callback(null,true);} else { callback(new Error('not allowed CORS'))}
+    },
+        credentials: true
     }
 });
 
 // --- Middleware ---
 app.use(cors({
-    origin: function (origin, callback) {
-        console.log(`[Express CORS] Origin: ${origin}`);
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            console.log(`[Express CORS] Blocked origin: ${origin}`);
-            callback(new Error('Not allowed by CORS'));
-        }
+    origin: function (origin, callback){
+        if (!origin || allowedOrigins.includes(origin)){
+            return callback(null,true);} else { callback(new Error('not allowed CORS'))}
     },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
-    exposedHeaders: ['Set-Cookie'],
-    optionsSuccessStatus: 204
+    credentials: true
 }));
-app.options('*', cors()); // Handle preflight for all routes
 app.use(bodyParser.json());
 app.use(cookieParser());
 
@@ -130,7 +106,7 @@ io.on('connection', (socket) => {
 
     socket.on('add_seller', (sellerId, userInfo) => {
         addSeller(sellerId, socket.id, userInfo);
-        socket.join(sellerId);
+        socket.join(sellerId); // Join seller to their _id room
         console.log(`Seller joined room: ${sellerId} | Socket: ${socket.id}`);
         io.emit('activeSeller', allSeller);
     });
