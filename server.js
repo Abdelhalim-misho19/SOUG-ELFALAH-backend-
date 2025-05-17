@@ -10,35 +10,45 @@ require('dotenv').config();
 
 // --- HTTP Server & Socket.IO Setup ---
 const server = http.createServer(app);
-const allowedOrigins = process.env.mode === 'pro' ? [process.env.client_customer_production_url, process.env.client_admin_production_url] : ['http://localhost:3000', 'http://localhost:3001'];
+const allowedOrigins = process.env.mode === 'pro' 
+    ? [process.env.client_customer_production_url, process.env.client_admin_production_url] 
+    : ['http://localhost:3000', 'http://localhost:3001'];
+
 const io = socket(server, {
     cors: {
         origin: function (origin, callback) {
+            console.log(`[Socket.IO CORS] Origin: ${origin}`);
             if (!origin || allowedOrigins.includes(origin)) {
-                return callback(null, true);
+                callback(null, true);
             } else {
+                console.log(`[Socket.IO CORS] Blocked origin: ${origin}`);
                 callback(new Error('Not allowed by CORS'));
             }
         },
         credentials: true,
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-        allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'], // Added Cookie header
+        allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
     }
 });
 
 // --- Middleware ---
 app.use(cors({
     origin: function (origin, callback) {
+        console.log(`[Express CORS] Origin: ${origin}`);
         if (!origin || allowedOrigins.includes(origin)) {
-            return callback(null, true);
+            callback(null, true);
         } else {
+            console.log(`[Express CORS] Blocked origin: ${origin}`);
             callback(new Error('Not allowed by CORS'));
         }
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'], // Added Cookie header
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+    exposedHeaders: ['Set-Cookie'], // Ensure cookie headers are accessible
+    optionsSuccessStatus: 204 // Handle preflight OPTIONS correctly
 }));
+app.options('*', cors()); // Explicitly handle preflight for all routes
 app.use(bodyParser.json());
 app.use(cookieParser());
 
