@@ -11,8 +11,13 @@ require('dotenv').config();
 // --- HTTP Server & Socket.IO Setup ---
 const server = http.createServer(app);
 const allowedOrigins = process.env.mode === 'pro' 
-    ? [process.env.client_customer_production_url, process.env.client_admin_production_url] 
+    ? [
+        process.env.client_customer_production_url, 
+        process.env.client_admin_production_url
+      ].filter(origin => origin && origin !== 'undefined') // Remove undefined or invalid origins
     : ['http://localhost:3000', 'http://localhost:3001'];
+
+console.log(`[Server Start] Allowed Origins: ${allowedOrigins.join(', ')}`); // Log allowed origins on startup
 
 const io = socket(server, {
     cors: {
@@ -45,10 +50,10 @@ app.use(cors({
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
-    exposedHeaders: ['Set-Cookie'], // Ensure cookie headers are accessible
-    optionsSuccessStatus: 204 // Handle preflight OPTIONS correctly
+    exposedHeaders: ['Set-Cookie'],
+    optionsSuccessStatus: 204
 }));
-app.options('*', cors()); // Explicitly handle preflight for all routes
+app.options('*', cors()); // Handle preflight for all routes
 app.use(bodyParser.json());
 app.use(cookieParser());
 
@@ -125,7 +130,7 @@ io.on('connection', (socket) => {
 
     socket.on('add_seller', (sellerId, userInfo) => {
         addSeller(sellerId, socket.id, userInfo);
-        socket.join(sellerId); // Join seller to their _id room
+        socket.join(sellerId);
         console.log(`Seller joined room: ${sellerId} | Socket: ${socket.id}`);
         io.emit('activeSeller', allSeller);
     });
